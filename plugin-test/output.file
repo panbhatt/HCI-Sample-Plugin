@@ -1,0 +1,198 @@
+{
+  "configuredPlugins": [
+    {
+      "pluginName": "com.hds.ensemble.sdk.plugin.samplepluginproject.FileReaderPlugin",
+      "pluginConfig": {
+        "propertyGroups": [
+          {
+            "name": "Group One",
+            "type": "DEFAULT",
+            "configProperties": [
+              {
+                "name": "hci.dir.plugin.path",
+                "type": "TEXT",
+                "userVisibleName": "Directory where the files have to be read.",
+                "userVisibleDescription": "Directory where the files have to be read.",
+                "options": [],
+                "required": true,
+                "value": "C:/temp/Agreements_Dump"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "pluginName": "com.hds.ensemble.sdk.plugin.samplepluginproject.SampleConnectorPlugin",
+      "pluginConfig": {
+        "propertyGroups": [
+          {
+            "name": "Group One",
+            "type": "DEFAULT",
+            "configProperties": [
+              {
+                "name": "hci.example.propertyOne",
+                "type": "TEXT",
+                "userVisibleName": "Example Property One",
+                "userVisibleDescription": "This is an example text property.",
+                "options": [],
+                "required": true,
+                "value": "This is an example of a text input field. Users may edit this text and plugins can access it."
+              },
+              {
+                "name": "hci.example.propertyTwo",
+                "type": "CHECKBOX",
+                "userVisibleName": "Example Property Two",
+                "userVisibleDescription": "This is an example checkbox property.",
+                "options": [],
+                "required": true,
+                "value": "true"
+              },
+              {
+                "name": "hci.example.propertyThree",
+                "type": "TEXT_AREA",
+                "userVisibleName": "Property Three",
+                "userVisibleDescription": "This is a text area property",
+                "propertyVisibilityTrigger": "hci.example.propertyTwo",
+                "propertyVisibilityTriggerValue": "true",
+                "options": [],
+                "required": false,
+                "value": "Four score and seven years ago..."
+              },
+              {
+                "name": "hci.example.propertyFour",
+                "type": "PASSWORD",
+                "userVisibleName": "Property Four",
+                "userVisibleDescription": "This is a password property",
+                "options": [],
+                "required": false,
+                "value": "letMeIn"
+              },
+              {
+                "name": "hci.example.propertyFive",
+                "type": "RADIO",
+                "userVisibleName": "Property Five",
+                "userVisibleDescription": "This is a radio button property",
+                "options": [
+                  "radio option 1",
+                  "radio option 2",
+                  "radio option 3"
+                ],
+                "required": false,
+                "value": "radio option 2"
+              },
+              {
+                "name": "hci.example.propertySix",
+                "type": "SELECT",
+                "userVisibleName": "Property Six",
+                "userVisibleDescription": "This is a selector property",
+                "propertyVisibilityTrigger": "hci.example.propertyFive",
+                "propertyVisibilityTriggerValue": "radio option 2",
+                "options": [
+                  "select option 1",
+                  "select option 2",
+                  "select option 3"
+                ],
+                "required": false,
+                "value": "select option 2"
+              },
+              {
+                "name": "hci.example.propertySeven",
+                "type": "MULTI_SELECT",
+                "userVisibleName": "Property Seven",
+                "userVisibleDescription": "This is a multi-selector property",
+                "options": [
+                  "multi-select option 1",
+                  "multi-select option 2",
+                  "multi-select option 3"
+                ],
+                "required": false,
+                "value": "multi-select option 2"
+              }
+            ]
+          },
+          {
+            "name": "Group Two",
+            "type": "SINGLE_VALUE_TABLE",
+            "configProperties": [
+              {
+                "name": "hci.example.svt.property1",
+                "type": "TEXT",
+                "options": [],
+                "required": false,
+                "value": "default SVT property value"
+              }
+            ]
+          },
+          {
+            "name": "Group Three",
+            "type": "KEY_VALUE_TABLE",
+            "configProperties": [
+              {
+                "name": "hci.example.kvt.property1",
+                "type": "TEXT",
+                "options": [],
+                "required": false,
+                "value": "default KVT property value"
+              }
+            ]
+          }
+        ]
+      },
+      "inputDocument": {
+        "fields": {
+          "HCI_dataSourceUuid": [
+            "069e97c2-acc5-40f0-bf3c-1558a7c6efda"
+          ],
+          "HCI_id": [
+            "https://testDocument.example.com/testDocument1"
+          ],
+          "HCI_doc_version": [
+            "1"
+          ],
+          "HCI_displayName": [
+            "Test Document"
+          ],
+          "HCI_URI": [
+            "https://testDocument.example.com/testDocument1"
+          ]
+        },
+        "streams": {
+          "HCI_content": {
+            "HCI_local-path": "C:\\Users\\bhattp7\\AppData\\Local\\Temp\\tmp4953730815876189472.tmp",
+            "Instructions": "To present a file on disk as a Document stream, use its path as the value of HCI_local-path"
+          }
+        }
+      },
+      "actions": [
+        {
+          "name": "example",
+          "description": "Example connector",
+          "config": {
+            "propertyGroups": [
+              {
+                "name": "Example Action Config Settings",
+                "type": "DEFAULT",
+                "configProperties": [
+                  {
+                    "name": "example.setting",
+                    "type": "TEXT",
+                    "userVisibleName": "Example Setting",
+                    "userVisibleDescription": "The example setting",
+                    "options": [],
+                    "required": true,
+                    "value": ""
+                  }
+                ]
+              }
+            ]
+          },
+          "available": false
+        }
+      ]
+    }
+  ],
+  "propertyGroups": []
+}
+
+

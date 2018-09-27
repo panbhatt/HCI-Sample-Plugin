@@ -1,0 +1,278 @@
+=============================================
+Overview
+=============================================
+ This file describes the Hitachi Content Intelligence (HCI) plugin SDK test harness.
+ You can use this test harness to test, verify, and debug custom HCI plugins.
+
+ For general information on HCI and its plugin SDK see the HCI-Plugin-SDK/README.txt file
+
+=============================================
+Contents
+=============================================
+1. Plugin Test Harness Layout
+2. Test Harness Requirements
+3. Example plugins
+4. Plugin Test Harness Usage
+5. Plugin Test Config File
+6. Automatically Generating a Test Config File
+7. Validating plugins
+8. Testing and debugging plugin logic
+
+=============================================
+1. Plugin Test Harness Layout
+=============================================
+
+/HCI-Plugin-SDK
+
+ /plugin-test
+  TEST_AND_DEBUG.txt - This document.
+  plugin-test        - Script for starting the test harness on UNIX systems
+  plugin-test.bat    - Script for starting the test harness on Windows systems
+  plugin-test.conf   - Default test harness configuration file
+  logback.xml        - Config controlling output from the plugin-test harness
+
+ /lib
+  plugin-test-{version}.jar  - Plugin test harness library
+    /sdk                     - All plugin SDK related libraries
+
+=============================================
+2. Test Harness Requirements
+=============================================
+* Java JDK 1.8 or lower
+
+* A compiled HCI plugin bundle JAR file
+
+  For details on how to build a custom plugin bundle JAR, see
+  HCI-Plugin-SDK/README.txt, or start with the example plugins
+  provided.
+
+
+=============================================
+3. Example plugins
+=============================================
+The HCI SDK contains two example plugins that you can use as starting points
+for new plugin development. These plugins (and instructions on how to build them)
+are located in the HCI-Plugin-SDK/examples directory.
+
+See HCI-Plugin-SDK/examples/EXAMPLES.txt for build instructions.
+
+
+=============================================
+4. Plugin Test Harness Usage
+=============================================
+The plugin test harness can operate in one of three modes:
+- Validation mode
+- Test mode
+- Debug mode
+
+In validation mode, the harness ensures that the manifest file exists,
+is well-formed, and that the plugin interfaces have all been correctly
+implemented.
+
+In test mode, custom configuration for each plugin is specified in the
+plugin-test harness configuration file. The test harness will then
+utilize each configuration to exercise additional functionality,
+check for errors, and make recommendations.
+
+Debug mode allows for configured plugins to be further utilized in a
+debuggable environment, allowing plugin logic itself to be checked
+for errors as methods are executed by the test harness.
+
+In Linux environments, use the "plugin-test" script to run the tool.
+
+For Windows, replace "plugin-test" in examples below with "plugin-test.bat".
+
+
+=============================================
+5. Plugin Test Config File
+=============================================
+
+The plugin-test configuration file is required to specify what the plugin-test tool
+should test and how it is tested.
+
+The plugin-test tool includes a configuration file called ./plugin-test.conf.
+This file has been configured for testing the HCI example plugins.
+
+You can use the "-c <path-to-config-file>" option to specify the path of the
+configuration file to use.
+
+If you omit the "-c" option, the tool firsts looks for a configuration file in
+the current user's home directory at ~/.hci/plugin-test.conf. If this does not
+exist, the tool looks for a file named ./plugin-test.conf in the local directory.
+
+
+================================================
+6. Automatically Generating a Test Config File
+================================================
+
+You can automatically generate a plugin-test config file for testing your own
+custom plugins.
+
+This automatically generated configuration file may then be saved and
+edited in order to fine tune the plugin configuration to be used while
+running the plugin test harness in a debugging mode. The auto-generated
+config will reflect the plugin-defined default values for all properties.
+
+Custom configuration values for each plugin may be applied. If a plugin
+requires user input for config properties in the default configuration,
+these values must be specified in the plugin-test config file before
+testing the plugin. This is accomplished by adding the proper "value"
+entries for all default config properties in the plugin configuration.
+
+ Example Config Property:
+
+         {
+             "name": "com.hds.hci.plugins.myplugin.property1",
+             "type": "TEXT",
+             "userVisibleName": "Field Name",
+             "userVisibleDescription": "The name of the field to process",
+             "options": [],
+             "required": true,
+             "value": "" // <--- Add non-empty value here for all required fields
+         }
+
+For stage plugin testing, the inputDocument fields and streams may also
+be customized in the automatically generated plugin-test configuration file.
+
+  Example Input Document:
+
+       "inputDocument": {
+         "fields": {
+           // --->  ADD OR MODIFY FIELDS HERE <----
+           "HCI_id": [
+             "https://testDocument.example.com/testDocument1"
+           ],
+           "HCI_doc_version": [
+             "1"
+           ],
+           "HCI_displayName": [
+             "Test Document"
+           ],
+           "HCI_URI": [
+             "https://testDocument.example.com/testDocument1"
+           ]
+         },
+         "streams": {
+           // --->  ADD OR MODIFY STREAMS HERE <----
+           "HCI_content": {
+             "HCI_local-path": "/tmp/tmp1904411799648787907.tmp",
+             "Instructions": "To present a stream, use it's path as the value of HCI_local-path"
+           }
+         }
+       }
+
+If your plugin implements the DocumentActionProcessor interface for custom actions, the action(s)
+should be declared and configured in order to execute tests with them.
+
+  Example Action Configuration:
+
+      "actions": [
+        {
+          "name": "writeFile",
+          "description": "Write the configured content stream of a document.",
+          "config": {
+            "propertyGroups": [
+              {
+                "name": "Write Action Config",
+                "type": "DEFAULT",
+                "configProperties": [
+                  {
+                    "name": "write.stream",
+                    "type": "TEXT",
+                    "userVisibleName": "Stream",
+                    "userVisibleDescription": "Stream that contains document contents",
+                    "options": [],
+                    "required": true,
+                    "value": "HCI_content"
+                  },
+                  ...
+                ]
+              }
+            ]
+          },
+          "available": true
+        },
+        ...
+      ]
+
+
+
+
+=============================================
+7. Validating plugins
+=============================================
+The following describes how to run basic plugin validation.
+
+To validate a plugin:
+
+  1. Go to the plugin-test directory:
+     cd HCI-Plugin-SDK/plugin-test
+
+  2. Run the test harness in validation mode:
+    ./plugin-test -j <path-to-your-plugin-bundle-name>.jar
+
+
+The test harness validates the implementation of your plugin and:
+   - Indicates where errors exist
+   - Makes recommendations to resolve any issues it identifies
+   - Makes best practice recommendations
+
+
+=============================================
+8. Testing and debugging plugin logic
+=============================================
+The following describes how to test and debug plugin logic.
+
+To test and debug your plugin:
+
+  1. Go to the plugin-test directory:
+     cd HCI-Plugin-SDK/plugin-test
+
+  2. Generate a configuration file for the plugins you want to test:
+
+     To generate a configuration file for all plugins in a bundle:
+        ./plugin-test -j <path-to-your-plugin-bundle-name>.jar -a [output-config-file]
+     To generate a configuration file for only one plugin:
+        ./plugin-test -j <path-to-your-plugin-bundle-name>.jar -plugin <plugin name> -a [output-config-file]
+
+     The output-config-file should then be edited to include the plugin configurations
+     you would like to test with.
+
+     For more information on generating and editing config files, see section 6.
+
+  3. Testing with the plugin test harness
+
+     Start the plugin test harness using the specified configuration:
+        ./plugin-test -j <path-to-your-plugin-bundle-name>.jar -c <path-to-generated-config-file>
+
+     Use the "-p" switch to specify a specific plugin only:
+        ./plugin-test -j <path-to-your-plugin-bundle-name>.jar -c <path-to-generated-config-file> -p <plugin name>
+
+     Plugin testing will begin immediately, and details will be written to the
+     console (by default). Output may be customized in the logback.xml file.
+
+
+  4. Debugging with the plugin test harness
+
+     In any Java debugger or IDE, first set breakpoints in your plugin Java class.
+
+     Start the plugin test harness in debug mode:
+        ./plugin-test -j <path-to-your-plugin-bundle-name>.jar -c <path-to-generated-config-file> -d
+
+     Start the plugin test harness in debug mode for a specific plugin:
+        ./plugin-test -j <path-to-your-plugin-bundle-name>.jar -c <path-to-generated-config-file> -p <plugin name> -d
+
+     Connect your Java IDE to the plugin-test harness as a "Remote Server"
+     at the specified port.
+
+     Note: The default plugin-test debug port is 5903, which may be customized
+           by specifying a DEBUG_PORT value in the plugin-test script.
+
+     Plugin testing will begin automatically after the IDE connects. Any plugin
+     breakpoints will be hit during the testing process, allowing for developers
+     to step through plugin logic and analyze behavior.
+
+
+
+
+
