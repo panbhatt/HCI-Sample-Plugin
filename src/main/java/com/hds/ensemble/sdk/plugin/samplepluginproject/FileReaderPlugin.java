@@ -45,6 +45,7 @@ public class FileReaderPlugin implements ConnectorPlugin {
     private final String NAME = "com.hds.ensemble.sdk.plugin.samplepluginproject.FileReaderPlugin";
     private final String DISPLAYNAME = "com.hds.ensemble.sdk.plugin.samplepluginproject.FileReaderPlugin";
     private final String DESCRIPTION = "DIRECTORY LISTING PLUGIN Desc " ;
+    private static final String LONG_DESCRIPTION = "File Listing plugin within an directory."; 
     
     private static final String HCI_DIR_PLUGIN_PATH = "hci.dir.plugin.path" ;
     
@@ -197,18 +198,26 @@ public class FileReaderPlugin implements ConnectorPlugin {
     public String getDescription() {
         return DESCRIPTION;
     }
+    
+      @Override
+    public String getLongDescription() {
+        // A user-visible local description string used to document the behavior of this plugin
+        // Uses "markdown" syntax described here: https://daringfireball.net/projects/markdown/syntax
+        return LONG_DESCRIPTION;
+    }
+
 
   
 
     @Override
     public void validateConfig(PluginConfig config) throws ConfigurationException {
          if (config.getPropertyValue(DIR_LOCATION.getName()) == null) {
-            throw new ConfigurationException("Missing Property One");
+            throw new ConfigurationException("Missing Directory location where to search");
         } else {
              System.out.println("VALUE p = " + config.getPropertyValue(DIR_LOCATION.getName()));
          }
      
-         Config.validateConfig(getDefaultConfig(), config);
+         //Config.validateConfig(getDefaultConfig(), config);
     }
 
     @Override

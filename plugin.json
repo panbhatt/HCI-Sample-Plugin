@@ -12,6 +12,11 @@
             "pluginImplementation": "com.hds.ensemble.sdk.plugin.samplepluginproject.FileReaderPlugin",
             "pluginName": "com.hds.ensemble.sdk.plugin.samplepluginproject.FileReaderPlugin",
             "pluginType": "com.hds.ensemble.sdk.connector.ConnectorPlugin"
+        },
+		{
+            "pluginImplementation": "com.hds.ensemble.sdk.plugin.samplepluginproject.GithubCrawlerConnector",
+            "pluginName": "com.hds.panbhatt.github.GithubCrawlerConnector",
+            "pluginType": "com.hds.ensemble.sdk.connector.ConnectorPlugin"
         }
     ],
     "version": "1.3.1"

@@ -15,7 +15,38 @@
                 "userVisibleDescription": "Directory where the files have to be read.",
                 "options": [],
                 "required": true,
-                "value": "C:/temp/Agreements_Dump"
+                "value": ""
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "pluginName": "com.hds.panbhatt.github.GithubCrawlerConnector",
+      "pluginConfig": {
+        "propertyGroups": [
+          {
+            "name": "URL Path",
+            "type": "DEFAULT",
+            "configProperties": [
+              {
+                "name": "GITHUB_URL",
+                "type": "TEXT",
+                "userVisibleName": "Enter GITHUB Repository URL",
+                "userVisibleDescription": "This URL entered would be considered for crawling.",
+                "options": [],
+                "required": true,
+                "value": "https://github.com/jcabi/jcabi-github"
+              },
+              {
+                "name": "GITHUB_TOKEN",
+                "type": "TEXT",
+                "userVisibleName": "Enter Github OAUTH Token",
+                "userVisibleDescription": "This OAUTH TOKEN would be used to read the Github Details.",
+                "options": [],
+                "required": true,
+                "value": "4dcc84215a92e6205561c703c7e9ce4b270d719d"
               }
             ]
           }
@@ -142,7 +173,7 @@
       "inputDocument": {
         "fields": {
           "HCI_dataSourceUuid": [
-            "069e97c2-acc5-40f0-bf3c-1558a7c6efda"
+            "4fbf1ca3-307b-4bf9-b9bd-743fdbd9404f"
           ],
           "HCI_id": [
             "https://testDocument.example.com/testDocument1"
@@ -159,7 +190,7 @@
         },
         "streams": {
           "HCI_content": {
-            "HCI_local-path": "C:\\Users\\bhattp7\\AppData\\Local\\Temp\\tmp4953730815876189472.tmp",
+            "HCI_local-path": "C:\\Users\\bhattp7\\AppData\\Local\\Temp\\tmp437446760320693178.tmp",
             "Instructions": "To present a file on disk as a Document stream, use its path as the value of HCI_local-path"
           }
         }

@@ -77,7 +77,9 @@ public class FileReaderPluginSession implements PluginSession {
     // For example purposes, get metadata for an example Document
     public Document getMetadata(URI uri) throws PluginOperationFailedException {
         
-        return getDocument(uri.toString()) ;
+        String str = uri.toString().substring(8) ;
+        System.out.println("String = " + str); 
+        return getDocument(str) ;
         /*if (uri.toString().endsWith("folder1")) {
             return getRootDocument();
         } else if (uri.toString().endsWith("1")) {
@@ -119,9 +121,9 @@ public class FileReaderPluginSession implements PluginSession {
         final List<String> fileNames = printFilenames("C:\\temp\\Agreements_Dump") ;
         
         fileNames.forEach((fileName) -> {
+            System.out.println("FILE NAME = " + fileName); 
             documents.add(getDocument(fileName));
         });
-    
 
         return new StreamingDocumentIterator() {
             final Iterator<Document> docIter = documents.iterator();
@@ -142,10 +144,11 @@ public class FileReaderPluginSession implements PluginSession {
         List<String> fileList = new ArrayList<>();
         System.out.println("DIR = " + sDir); 
         try {
-            Files.find(Paths.get(sDir), 999, (p, bfa) -> bfa.isRegularFile()).forEach((fileName) -> fileList.add(fileName.toString()));
+            Files.find(Paths.get(sDir), 999, (p, bfa) -> bfa.isRegularFile()).forEach((fileName) -> fileList.add(fileName.toAbsolutePath().toString().replace("\\","/")));
         } catch (IOException ex) {
             System.out.println("Exception Occured. " + ex); 
         }
+        System.out.println("FILE LIST SIZE  = " + fileList.size());
         return fileList;
     }
 
@@ -155,18 +158,17 @@ public class FileReaderPluginSession implements PluginSession {
         // Optionally add metadata about this stream (e.g. it's size, etc.)
         contentStreamMetadata.put("streamMetaData_Path", name);
         return callback.documentBuilder()
-                .addMetadata("document" + name + "Message", StringDocumentFieldValue.builder()
+                .addMetadata("document " + name + " Message", StringDocumentFieldValue.builder()
                         .setString("This is document " + name).build())
                 .addMetadata(StandardFields.ID, StringDocumentFieldValue.builder()
                         .setString(name).build())
                 .addMetadata(StandardFields.URI, StringDocumentFieldValue.builder()
-                        //.setString("file:///"+name).build())
-                        .setString("http://google.com").build())
+                        .setString("file:///"+name).build())
                 .addMetadata(StandardFields.DISPLAY_NAME, StringDocumentFieldValue.builder()
                         .setString("Document " + name).build())
                 .addMetadata(StandardFields.VERSION, StringDocumentFieldValue.builder()
                         .setString("1.0").build())
-                .setStreamMetadata(StandardFields.CONTENT, contentStreamMetadata)
+                .setStreamMetadata(StandardFields.CONTENT, contentStreamMetadata )
                 .build();
     }
 }
