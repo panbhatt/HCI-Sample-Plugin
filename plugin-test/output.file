@@ -23,37 +23,6 @@
       }
     },
     {
-      "pluginName": "com.hds.panbhatt.github.GithubCrawlerConnector",
-      "pluginConfig": {
-        "propertyGroups": [
-          {
-            "name": "URL Path",
-            "type": "DEFAULT",
-            "configProperties": [
-              {
-                "name": "GITHUB_URL",
-                "type": "TEXT",
-                "userVisibleName": "Enter GITHUB Repository URL",
-                "userVisibleDescription": "This URL entered would be considered for crawling.",
-                "options": [],
-                "required": true,
-                "value": "https://github.com/jcabi/jcabi-github"
-              },
-              {
-                "name": "GITHUB_TOKEN",
-                "type": "TEXT",
-                "userVisibleName": "Enter Github OAUTH Token",
-                "userVisibleDescription": "This OAUTH TOKEN would be used to read the Github Details.",
-                "options": [],
-                "required": true,
-                "value": "4dcc84215a92e6205561c703c7e9ce4b270d719d"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
       "pluginName": "com.hds.ensemble.sdk.plugin.samplepluginproject.SampleConnectorPlugin",
       "pluginConfig": {
         "propertyGroups": [
@@ -173,7 +142,7 @@
       "inputDocument": {
         "fields": {
           "HCI_dataSourceUuid": [
-            "4fbf1ca3-307b-4bf9-b9bd-743fdbd9404f"
+            "5440c346-638b-487a-b5dd-d2c41688e8a9"
           ],
           "HCI_id": [
             "https://testDocument.example.com/testDocument1"
@@ -190,7 +159,7 @@
         },
         "streams": {
           "HCI_content": {
-            "HCI_local-path": "C:\\Users\\bhattp7\\AppData\\Local\\Temp\\tmp437446760320693178.tmp",
+            "HCI_local-path": "C:\\Users\\bhattp7\\AppData\\Local\\Temp\\tmp4202433467131746024.tmp",
             "Instructions": "To present a file on disk as a Document stream, use its path as the value of HCI_local-path"
           }
         }
@@ -221,6 +190,37 @@
           "available": false
         }
       ]
+    },
+    {
+      "pluginName": "com.hds.ensemble.sdk.plugin.github.GithubIssueConnector",
+      "pluginConfig": {
+        "propertyGroups": [
+          {
+            "name": "URL Path",
+            "type": "DEFAULT",
+            "configProperties": [
+              {
+                "name": "GITHUB_URL",
+                "type": "TEXT",
+                "userVisibleName": "Enter GITHUB Repository URL",
+                "userVisibleDescription": "This URL entered would be considered for crawling.",
+                "options": [],
+                "required": true,
+                "value": "jcabi/jcabi-github"
+              },
+              {
+                "name": "GITHUB_TOKEN",
+                "type": "TEXT",
+                "userVisibleName": "GITHUB OAUTH TOKEN",
+                "userVisibleDescription": "This OAUTH TOKEN would be used to read the Github Details.",
+                "options": [],
+                "required": true,
+                "value": "d3f78a4dbf94ce8dc5e8e0280ed9c3cec6239c4e"
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "propertyGroups": []

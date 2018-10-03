@@ -24,7 +24,7 @@ IF /I %JAVA_VERSION% LSS 1.8 (
 setlocal enabledelayedexpansion
 
 set HCI_PLUGIN_TEST_BASEDIR=%~dp0
-set HCI_PLUGIN_TEST_CP=%HCI_PLUGIN_TEST_BASEDIR%..\lib\*
+set HCI_PLUGIN_TEST_CP=%HCI_PLUGIN_TEST_BASEDIR%..\lib\*;%JAVA_HOME%/jre/lib/ext/sunjce_provider.jar
 set HCI_PLUGIN_TEST_EXT_DIR=%HCI_PLUGIN_TEST_BASEDIR%..\lib\sdk
 set LOGENV=-Dlogback.configurationFile="%HCI_PLUGIN_TEST_BASEDIR%logback.xml"
 set DEBUG=
@@ -52,7 +52,8 @@ IF NOT "%1"=="" (
 )
 
 IF NOT "%JAR%"=="" (
-	set HCI_PLUGIN_TEST_CP=%JAR%;%HCI_PLUGIN_TEST_CP%
+	
+	set HCI_PLUGIN_TEST_CP=%JAR%;%HCI_PLUGIN_TEST_CP%;
 	set HCI_PLUGIN_TEST_EXT_DIR=%JARPATH%;%HCI_PLUGIN_TEST_EXT_DIR%
 )
 
@@ -62,9 +63,11 @@ IF NOT DEFINED JAVA_HOME (
 )
 IF DEFINED JAVA_HOME (
     ECHO Using java from: %JAVA_HOME%
-    set EXTENV=-Djava.ext.dirs="%HCI_PLUGIN_TEST_EXT_DIR%;%JAVA_HOME%\lib\ext"
+    REM set EXTENV=-Djava.ext.dirs="%HCI_PLUGIN_TEST_EXT_DIR%;%JAVA_HOME%\lib\ext"
+	set EXTENV=-Djava.ext.dirs="%HCI_PLUGIN_TEST_EXT_DIR%"
 )
 
 set JAVA_OPTIONS=%JAVA_OPTIONS% %LOGENV% %EXTENV% %DEBUG%
+
 
 java %JAVA_OPTIONS% -cp "%HCI_PLUGIN_TEST_CP%" com.hds.ensemble.sdk.plugin.test.PluginTestHarness %*

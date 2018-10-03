@@ -118,7 +118,7 @@ public class FileReaderPluginSession implements PluginSession {
     // For example purposes, list all example documents
     public Iterator<Document> list() {
         final List<Document> documents = new ArrayList<>();
-        final List<String> fileNames = printFilenames("C:\\temp\\Agreements_Dump") ;
+        final List<String> fileNames = printFilenames(this.dir) ;
         
         fileNames.forEach((fileName) -> {
             System.out.println("FILE NAME = " + fileName); 

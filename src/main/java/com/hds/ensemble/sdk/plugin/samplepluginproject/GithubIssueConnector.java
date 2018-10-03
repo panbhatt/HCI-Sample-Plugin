@@ -9,7 +9,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -48,19 +47,21 @@ import com.hds.ensemble.sdk.plugin.PluginCallback;
 import com.hds.ensemble.sdk.plugin.PluginConfig;
 import com.hds.ensemble.sdk.plugin.PluginConfig.Builder;
 import com.hds.ensemble.sdk.plugin.PluginSession;
-import com.jcabi.github.Coordinates;
-import com.jcabi.github.Github;
-import com.jcabi.github.Issue;
-import com.jcabi.github.Repo;
-import com.jcabi.github.RtGithub;
+import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
+import org.kohsuke.github.GHIssue;
+import org.kohsuke.github.GHIssueState;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 
-public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionProcessor {
+public class GithubIssueConnector implements ConnectorPlugin, DocumentActionProcessor {
 
-    private static final Logger log = LogManager.getLogger(GithubCrawlerConnector.class);
+    private static final Logger log = LogManager.getLogger(GithubIssueConnector.class);
 
-    private static final String PLUGIN_NAME = "com.hds.panbhatt.github.GithubCrawlerConnector";
-    private static final String DISPLAY_NAME = "GITHUB Crawler";
-    private static final String DESCRIPTION = "URL Crawler Data Connection";
+    private static final String PLUGIN_NAME = "com.hds.ensemble.sdk.plugin.github.GithubIssueConnector";
+    private static final String DISPLAY_NAME = "GITHUB ISSUE Crawler";
+    private static final String DESCRIPTION = "GITHUB ISSUE CRAWLER - Creating documents from all the issues for a particular REPO.";
+    private static final String LONG_DESCRIPTION = "GITHUB Issue crawler - navigating through all the issuesl for a specific GITHUB Repository. ";
 
     private static final String SUBCATEGORY_NAME = "Connector Plugin";
 
@@ -70,36 +71,26 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
     private final static String GITHUB_URL = "GITHUB_URL";
     private final static String GITHUB_TOKEN = "GITHUB_TOKEN";
 
-    private Github github;
-    private Repo repo;
+    private GHRepository repo;
+
     private ArrayList<Document> documentList;
 
     public static final ConfigProperty.Builder GITHUB_REPOSITORY_URL_PROPERTY = new ConfigProperty.Builder().setName(GITHUB_URL)
-            .setValue("Enter GITHUB URL for crawling").setType(PropertyType.TEXT).setRequired(true)
+            .setValue("<username>/<repo>").setType(PropertyType.TEXT).setRequired(true)
             .setUserVisibleName("Enter GITHUB Repository URL")
             .setUserVisibleDescription("This URL entered would be considered for crawling.");
 
     public static final ConfigProperty.Builder GITHUB_TOKEN_PROPERTY = new ConfigProperty.Builder().setName(GITHUB_TOKEN)
-            .setValue("Enter GITHUB OAUTH TOKEN").setType(PropertyType.TEXT).setRequired(true)
-            .setUserVisibleName("Enter Github OAUTH Token")
+            .setValue("<adasdfasdasdfasdfadfadsasdsd>").setType(PropertyType.TEXT).setRequired(true)
+            .setUserVisibleName("GITHUB OAUTH TOKEN")
             .setUserVisibleDescription("This OAUTH TOKEN would be used to read the Github Details.");
 
-    /* public static final ConfigProperty.Builder URL_EXCLUSION_REGEX_PROPERTY = new ConfigProperty.Builder().setName("exRegEx")
-            .setValue("Enter regular expression for URLs to exclude in crawl").setType(PropertyType.TEXT).setRequired(true)
-            .setUserVisibleName("Enter RegEx Exclude")
-            .setUserVisibleDescription("This regular expression will be used for evaluating URLs for crawl exclusion.");
-
-    public static final ConfigProperty.Builder MAX_DEPTH_PROPERTY = new ConfigProperty.Builder().setName("MaxDepth")
-            .setValue("Enter depth of directory search").setType(PropertyType.TEXT).setRequired(true)
-            .setUserVisibleName("Enter Max Depth")
-            .setUserVisibleDescription("This will determine the maximum directory depth searched during the crawl.");*/
     private static List<ConfigProperty.Builder> url_input_Properties = new ArrayList<>();
 
     static {
         url_input_Properties.add(GITHUB_REPOSITORY_URL_PROPERTY);
         url_input_Properties.add(GITHUB_TOKEN_PROPERTY);
-        /* url_input_Properties.add(URL_EXCLUSION_REGEX_PROPERTY);
-        url_input_Properties.add(MAX_DEPTH_PROPERTY);*/
+
     }
 
     public static final ConfigPropertyGroup.Builder URL_GROUP_PROPERTY = new ConfigPropertyGroup.Builder("URL Path",
@@ -124,7 +115,7 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
             .description("URL crawler connector").config(ACTION_CONFIG)
             .types(EnumSet.of(ActionType.OUTPUT, ActionType.STAGE)).build();
 
-    public GithubCrawlerConnector() {
+    public GithubIssueConnector() {
         this.pluginConfig = null;
         this.callback = null;
         //basic log4j configuration
@@ -132,7 +123,7 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
     }
 
     // Constructor for configured plugin instances to be used in workflows
-    private GithubCrawlerConnector(PluginConfig config, PluginCallback callback) throws ConfigurationException {
+    private GithubIssueConnector(PluginConfig config, PluginCallback callback) throws ConfigurationException {
         this.pluginConfig = config;
         this.callback = callback;
 
@@ -145,26 +136,21 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
         Config.validateConfig(getDefaultConfig(), config);
 
         if (config.getPropertyValue(GITHUB_REPOSITORY_URL_PROPERTY.getName()) == null) {
-            throw new ConfigurationException("Missing Property: Github URL");
+            throw new ConfigurationException("Missing Property: Github URL format should be <username>/<reponame>");
         }
         if (config.getPropertyValue(GITHUB_TOKEN_PROPERTY.getName()) == null) {
             throw new ConfigurationException("Missing Property: GIthub Token");
         }
-        /*  if (config.getPropertyValue(URL_EXCLUSION_REGEX_PROPERTY.getName()) == null) {
-            throw new ConfigurationException("Missing Property: Inclusion RegEx");
-        }
-        if (config.getPropertyValue(MAX_DEPTH_PROPERTY.getName()) == null) {
-            throw new ConfigurationException("Missing Property: Max Depth");
-        }*/
+
     }
 
     @Override
-    public GithubCrawlerConnector build(PluginConfig config, PluginCallback callback) throws ConfigurationException {
+    public GithubIssueConnector build(PluginConfig config, PluginCallback callback) throws ConfigurationException {
         validateConfig(config);
 
         // This method is used as a factory to create a configured instance of
         // this connector
-        return new GithubCrawlerConnector(config, callback);
+        return new GithubIssueConnector(config, callback);
     }
 
     @Override
@@ -182,6 +168,13 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
     public String getDescription() {
         // A user-visible description string describing this plugin
         return DESCRIPTION;
+    }
+
+    @Override
+    public String getLongDescription() {
+        // A user-visible local description string used to document the behavior of this plugin
+        // Uses "markdown" syntax described here: https://daringfireball.net/projects/markdown/syntax
+        return LONG_DESCRIPTION;
     }
 
     @Override
@@ -255,17 +248,16 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
             throw new PluginOperationFailedException("The provided configuration URL is not acceptable: " + e);
         }
 
-        try {
+        /* try {
 
-            Iterable<Issue> issueIterator = repo.issues().iterate(new HashMap<String, String>());
+           Iterable<Issue> issueIterator = repo.issues().iterate(new HashMap<String, String>());
             for (Issue issue : issueIterator) {
                 myDocument = myPluginSession.getDocument(issue);
                 documentList.add(myDocument);
             }
-
         } catch (Exception e) {
             throw new PluginOperationFailedException("An error was thrown while attempting to evaluate the URL: " + e);
-        }
+        }*/
     }
 
     @Override
@@ -303,7 +295,18 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
 
     @Override
     public void test(PluginSession pluginSession) throws ConfigurationException, PluginOperationFailedException {
-        // Write Logic here to test things. 
+
+        String url = pluginConfig.getProperty(GITHUB_URL).getValue();
+        String token = pluginConfig.getProperty(GITHUB_TOKEN).getValue();
+        try {
+            GitHub github = GitHub.connectUsingOAuth(token);
+            this.repo = github.getRepository(url);
+
+        } catch (IOException ioEx) {
+            ioEx.printStackTrace();
+            throw new ConfigurationException("UNABLE TO GET REPO -> " + ioEx.getMessage());
+        }
+
     }
 
     @Override
@@ -359,9 +362,20 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
     private class MyPluginSession implements PluginSession {
 
         PluginCallback callback;
+        GHRepository repo;
 
         MyPluginSession(PluginCallback callback) {
             this.callback = callback;
+            try {
+
+                GitHub github = GitHub.connectUsingOAuth(pluginConfig.getProperty(GITHUB_TOKEN).getValue());
+                this.repo = github.getRepository(pluginConfig.getProperty(GITHUB_URL).getValue());
+                log.info("Successfully Connected to GITHUB URL " + this.repo.getHtmlUrl().toString());
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+
+            }
         }
 
         @Override
@@ -378,16 +392,15 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
             //Take the instantiated URL list that was given
             //String url = DEFAULT_CONFIG.getPropertyValue(GITHUB_URL);
 
-            String url = DEFAULT_CONFIG.getPropertyValue(GITHUB_URL);
-            String token = DEFAULT_CONFIG.getPropertyValue(GITHUB_TOKEN);
-            System.out.println("TOKEN = " + token);
-            github = new RtGithub(token);
-            repo = github.repos().get(new Coordinates.Simple("jcabi", "jcabi-github"));
+            /*String url = DEFAULT_CONFIG.getPropertyValue(GITHUB_URL);
+            String token = DEFAULT_CONFIG.getPropertyValue(GITHUB_TOKEN);*/
+            System.out.println(repo);
+            String url = repo.getHtmlUrl().toString();
 
             return callback.documentBuilder()
                     .setIsContainer(true)
                     .addMetadata("rootMessage", StringDocumentFieldValue.builder()
-                            .setString("This is a REPO PLUGIN").build())
+                            .setString("This is a REPO ROOT FOLDER").build())
                     .addMetadata(StandardFields.ID, StringDocumentFieldValue.builder()
                             .setString(url).build())
                     .addMetadata(StandardFields.URI, StringDocumentFieldValue.builder()
@@ -430,6 +443,10 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
                             .setString("//folder1/doc/" + uri).build())
                     .addMetadata(StandardFields.DISPLAY_NAME, StringDocumentFieldValue.builder()
                             .setString(uri.toString()).build())
+                    .addMetadata("GIT_USER", StringDocumentFieldValue.builder()
+                            .setString("username").build())
+                    .addMetadata("GIT_LABELS", StringDocumentFieldValue.builder()
+                            .setString("labels").build())
                     .addMetadata(StandardFields.VERSION, StringDocumentFieldValue.builder()
                             .setString("1").build())
                     .setStreamMetadata(StandardFields.CONTENT, contentStreamMetadata)
@@ -438,17 +455,10 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
 
         public Iterator<Document> list(PluginSession session) throws PluginOperationFailedException {
 
-            String url = DEFAULT_CONFIG.getPropertyValue(GITHUB_URL);
-            String token = DEFAULT_CONFIG.getPropertyValue(GITHUB_TOKEN);
-            URI uri = null;
-            try {
-                uri = new URI(url);
-            } catch (URISyntaxException e) {
-                throw new PluginOperationFailedException("The provided configuration URL is not acceptable: " + e);
-            }
-
             documentList = new ArrayList<Document>();
-            getDocuments(session, uri);
+
+            getDocuments(session, repo.getHtmlUrl());
+            log.info("TOTAL ISSUES = " + documentList.size());
 
             return new StreamingDocumentIterator() {
                 Iterator<Document> docIter = documentList.iterator();
@@ -463,6 +473,33 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
             };
         }
 
+        public void getDocuments(PluginSession session, URL url)
+                throws PluginOperationFailedException {
+
+            MyPluginSession myPluginSession = getMyPluginSession(session);
+            try {
+                List<GHIssue> issues;
+
+                issues = repo.getIssues(GHIssueState.OPEN);
+
+                issues.forEach((issue) -> {
+                    try {
+                        Document myDocument = getDocument(issue);
+                        documentList.add(myDocument);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        log.error("Error occured, while processing issue no : " + issue.getNumber());
+
+                    }
+                }
+                );
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                log.error("An IO Exception haso occured while getting the list of issues. ");
+            }
+
+        }
+
         /*Obtain a document with the given URI
          * We are simply building a list of document with a single attribute of their URL
          * We let a stage take this URL and evaluate it further for content
@@ -475,26 +512,46 @@ public class GithubCrawlerConnector implements ConnectorPlugin, DocumentActionPr
          * because I don't see a need for it yet.  We would only reach one version of each of these URLs.
          * If they change, then it is not the same URL, so it's a new document
          */
-        private Document getDocument(Issue issue) {
+        private Document getDocument(String uri) {
             HashMap<String, String> contentStreamMetadata = new HashMap<>();
-            // Optionally add metadata about this stream (e.g. it's size, etc.)
+            // Optionally gdd metadata about this stream (e.g. it's size, etc.)
             contentStreamMetadata.put("ExampleStreamMetadataKey", "ExampleStreamMetadataValue");
-            String uri = GITHUB_URL + "/issues/" + issue.number();
-            final StringBuilder labels = new StringBuilder();
-            issue.labels().iterate().forEach((label) -> {
-                labels.append(label.name()).append(" ");
-            });
+
             return callback.documentBuilder()
                     .addMetadata(StandardFields.URI, StringDocumentFieldValue.builder()
                             .setString(uri).build())
                     .addMetadata("URI: " + uri, StringDocumentFieldValue.builder()
                             .setString("This is document for URI " + uri).build())
                     .addMetadata(StandardFields.ID, StringDocumentFieldValue.builder()
-                            .setString("//folder1/doc/" + uri).build())
+                            .setString(uri).build())
                     .addMetadata(StandardFields.DISPLAY_NAME, StringDocumentFieldValue.builder()
                             .setString(uri).build())
-                    .addMetadata("HCI_Labels", StringDocumentFieldValue.builder()
-                            .setString(labels.toString()).build())
+                    .addMetadata(StandardFields.VERSION, StringDocumentFieldValue.builder()
+                            .setString("1").build())
+                    .setStreamMetadata(StandardFields.CONTENT, contentStreamMetadata)
+                    .build();
+        }
+
+        private Document getDocument(GHIssue issue) throws IOException {
+            HashMap<String, String> contentStreamMetadata = new HashMap<>();
+            // Optionally gdd metadata about this stream (e.g. it's size, etc.)
+            contentStreamMetadata.put("ExampleStreamMetadataKey", "ExampleStreamMetadataValue");
+            String issueUrl = issue.getUrl().toString();
+            log.info(" PROCESSING -> " + issueUrl);
+
+            return callback.documentBuilder()
+                    .addMetadata(StandardFields.URI, StringDocumentFieldValue.builder()
+                            .setString(issueUrl).build())
+                    .addMetadata("URI: " + issueUrl, StringDocumentFieldValue.builder()
+                            .setString("This is document for URI " + issueUrl).build())
+                    .addMetadata(StandardFields.ID, StringDocumentFieldValue.builder()
+                            .setString(issueUrl).build())
+                    .addMetadata(StandardFields.DISPLAY_NAME, StringDocumentFieldValue.builder()
+                            .setString(issue.getTitle()).build())
+                    .addMetadata("GIT_USER", StringDocumentFieldValue.builder()
+                            .setString(issue.getUser().getName()).build())
+                    .addMetadata("GIT_LABELS", StringDocumentFieldValue.builder()
+                            .setString(StringUtils.join(issue.getLabels(), " - ")).build())
                     .addMetadata(StandardFields.VERSION, StringDocumentFieldValue.builder()
                             .setString("1").build())
                     .setStreamMetadata(StandardFields.CONTENT, contentStreamMetadata)

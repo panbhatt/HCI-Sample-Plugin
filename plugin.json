@@ -1,7 +1,7 @@
 {
     "bundleName": "com.hds.ensemble.sdk.plugin.samplepluginproject",
-    "description": "Example Connector and Stage Plugins",
-    "displayName": "Example Plugins",
+    "description": "Example Connector and Stage Plugins - PBHATT",
+    "displayName": "Example Plugins -  PBHATT",
     "plugins": [
         {
             "pluginImplementation": "com.hds.ensemble.sdk.plugin.samplepluginproject.SampleConnectorPlugin",
@@ -13,11 +13,11 @@
             "pluginName": "com.hds.ensemble.sdk.plugin.samplepluginproject.FileReaderPlugin",
             "pluginType": "com.hds.ensemble.sdk.connector.ConnectorPlugin"
         },
-		{
-            "pluginImplementation": "com.hds.ensemble.sdk.plugin.samplepluginproject.GithubCrawlerConnector",
-            "pluginName": "com.hds.panbhatt.github.GithubCrawlerConnector",
+		 {
+            "pluginImplementation": "com.hds.ensemble.sdk.plugin.samplepluginproject.GithubIssueConnector",
+            "pluginName": "com.hds.ensemble.sdk.plugin.github.GithubIssueConnector",
             "pluginType": "com.hds.ensemble.sdk.connector.ConnectorPlugin"
         }
     ],
-    "version": "1.3.1"
+    "version": "1.0.0"
 }

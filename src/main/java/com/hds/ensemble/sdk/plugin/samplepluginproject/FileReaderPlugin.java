@@ -127,6 +127,7 @@ public class FileReaderPlugin implements ConnectorPlugin {
     @Override
     public Iterator<Document> list(PluginSession session, Document dcmnt) throws ConfigurationException, PluginOperationFailedException {
          FileReaderPluginSession fileReaderPluginSession = getSession(session);
+         
         return fileReaderPluginSession.list(); // Only 1 container to list
     }
 
@@ -222,7 +223,7 @@ public class FileReaderPlugin implements ConnectorPlugin {
 
     @Override
     public PluginSession startSession() throws ConfigurationException, PluginOperationFailedException {
-        String dir = getDefaultConfig().getPropertyValue(HCI_DIR_PLUGIN_PATH) ;
+        String dir = config.getPropertyValue(HCI_DIR_PLUGIN_PATH) ;
         System.out.println("DIR VALUE IS = " + dir); ;
          return new FileReaderPluginSession(callback, dir);
     }
